@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<!--
+    Copyright (c) 2012-2016 Adobe Systems Incorporated. All rights reserved.
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+    <!-- This is a wide open CSP declaration. To lock this down for production, see below. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+    
+
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <style>
+		html, body{width:100%; height:100%;}
+		body{margin:0; padding:0;}
+		#blanker{background-image:url('loader.gif'); background-repeat:no-repeat; background-position: center center; display:block; z-index:9998; position:fixed; top:0;left:0; height:100%; width:100%; background-color:#12ccb4;}
+		#offline-screen{width:100%; height:130%; background:url('connectionlost.png') no-repeat center center; background-color: #12CCB4; background-size:contain; display:none; z-index:9999; position:fixed; top:0; left:0;}
+	</style>
+</head>
+
+<body>
+	<div id="blanker"></div>
+	<div id="offline-screen"></div>
+	<div class="social-button-facebook button_inline" onclick="browse();"></div>
+	
+	<iframe src="https://www.floow2.com/floow2-nl-mobiel.html" name="container-frame" id="container-frame" onload="loaded();" seamless="seamless" width="100%" height="100%" style="border:none; position:absolute;"></iframe>
+       
+	<script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>   
+    <script type="text/javascript">
+		// Initialize local vars
+		var deviceId;
+		var flag = true;
+		var notificationFlag = true;
+		
+		document.getElementById('offline-screen').style.height = document.body.clientHeight+'px';
+		document.addEventListener("deviceready",onDeviceReady,false);
+	
+		function loaded(){
+			document.getElementById('blanker').style.display = 'none';
+		}
+		var receiveMessage = function receiveMessage(e){
+			switch (e.data) {
+				case 'setBlanker':
+					document.getElementById('blanker').style.display = 'block';
+					break;
+				case 'removeBlanker':
+					document.getElementById('blanker').style.display = 'none'; 
+					break;
+			}
+		};			
+
+		window.addEventListener("message", receiveMessage, false);
+
+		
+	/*	function getLanguage() {
+				   navigator.globalization.getPreferredLanguage(onSuccess, onError);
+
+				   function onSuccess(language) {
+					  alert('language: ' + language.value + '\n');
+					 // alert('deviceid: ' + deviceId + '\n');
+						var lang = language.value;
+						var res = lang.split("-");
+						if(res[0] == 'nl'){
+							//document.getElementById('container-frame').src = 'http://www.floow2.com/floow2-nl-mobiel.html';
+						}
+						else{
+							document.getElementById('container-frame').src = 'http://www.floow2.com/fl2-en-mobile.html';
+						}
+					}
+
+				   function onError(){
+						 if(flag){
+								if(notificationFlag){
+									document.getElementById('container-frame').src = 'http://www.floow2.com/floow2-nl-mobiel.html;
+								}
+								else{
+									document.getElementById('container-frame').src = 'http://www.floow2.com/floow2-nl-mobiel.html';
+								}
+								flag = false;
+							}
+					   }
+					
+				} */
+
+		function onDeviceReady(){
+		alert('hi');
+			var push = PushNotification.init({ "android": {"senderID": "992772188333"},
+			"ios": {"alert": "true", "badge": "true", "sound": "true"}, "windows": {} } );
+
+			push.on('registration', function(data) {
+			//	deviceId = data.registrationId;
+				alert(data.registrationId);
+			//	getLanguage();			
+			}); 
+			
+			push.on('error', function(e) {
+				notificationFlag = false;
+			//	getLanguage();
+			}); 
+
+			push.on('notification', function(data) {
+				navigator.notification.alert(
+                    data.message,         // message
+                    null,                 // callback
+                    data.title,           // title
+                    'Ok'                  // buttonName
+				);			
+			});
+			
+			// Blanker on change
+			document.addEventListener("online", doWhenOnline, false);
+			document.addEventListener("offline", doWhenOffline, false);
+			var networkState = navigator.connection.type;
+
+			if(networkState == Connection.NONE) {
+				doWhenOffline();
+			}
+			else{
+				doWhenOnline();
+			} 
+		}
+
+		function doWhenOnline(){
+			document.getElementById('offline-screen').style.display = 'none';
+		}
+		function doWhenOffline(){				
+			document.getElementById('offline-screen').style.display = 'block';
+		}
+    </script>
+	
+</body>
+
+</html>
