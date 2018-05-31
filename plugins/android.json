@@ -19,6 +19,9 @@
     },
     "cordova-plugin-whitelist": {
       "PACKAGE_NAME": "com.robhaenen.floow2"
+    },
+    "cordova-plugin-globalization": {
+      "PACKAGE_NAME": "com.robhaenen.floow2"
     }
   },
   "dependent_plugins": {}
